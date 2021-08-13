@@ -1,0 +1,7 @@
+{
+  "name": "edge_origin_request",
+  "version": "1.0.0",
+  "description": "lambda at edge sample for origin request",
+  "main": "app.js",
+  "license": "MIT"
+}

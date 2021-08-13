@@ -1,0 +1,231 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Amazon API Gateway header based versioning
+
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "HTTP Header Configuration"
+        Parameters: 
+          - ApiVersionHeaderName
+      - 
+        Label: 
+          default: "Sample APIs Configuration"
+        Parameters: 
+          - SampleApiVersionMappingV1
+          - SampleApiVersionMappingV2
+    ParameterLabels: 
+      ApiVersionHeaderName: 
+        default: "API version HTTP header name"
+      SampleApiVersionMappingV1: 
+        default: "Sample API v.1 HTTP header value"
+      SampleApiVersionMappingV2: 
+        default: "Sample API v.2 HTTP header value"
+
+Parameters:
+  ApiVersionHeaderName:
+    Description: The name of the HTTP header contains desired API Version.
+    Type: String
+    Default: Accept
+  SampleApiVersionMappingV1:
+    Description: The value of the HTTP header to specify API v.1.
+    Type: String
+    Default: application/vnd.example.v1+json
+  SampleApiVersionMappingV2:
+    Description: The value of the HTTP header to specify API v.2.
+    Type: String
+    Default: application/vnd.example.v2+json
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  HelloWorldFunctionV1:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          API_VER: v.1
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /v1/hello
+            Method: get 
+  
+  HelloWorldFunctionV2:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          API_VER: v.2
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /v2/hello
+            Method: get
+
+  CFDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: 'true'
+        Origins:
+          -
+            Id: MyOrigin
+            DomainName: aws.amazon.com
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+            OriginCustomHeaders:
+              - 
+                HeaderName: custom-apigw-header-name
+                HeaderValue: !Ref ApiVersionHeaderName
+              - 
+                HeaderName: custom-apigw-table-name
+                HeaderValue: !Ref ApiVersionsMappingDynamoDBTable
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          DefaultTTL: 0
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: true
+            Headers:
+              - '*'
+          TargetOriginId: MyOrigin
+          LambdaFunctionAssociations:
+            - 
+              EventType: origin-request
+              LambdaFunctionARN: !Ref LambdaEdgeFunctionRouteApi.Version
+          ViewerProtocolPolicy: redirect-to-https
+
+  LambdaEdgeFunctionRouteApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: edge-origin-request/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      AutoPublishAlias: live
+      Role: !GetAtt LambdaEdgeFunctionRouteApiRole.Arn
+  
+  LambdaEdgeFunctionRouteApiRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+        Path: "/"
+        ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        Policies:
+          - PolicyName: dyanmodb_access_policy
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement: 
+                - Effect: Allow
+                  Action: 
+                    - dynamodb:BatchGet*
+                    - dynamodb:DescribeTable
+                    - dynamodb:Get*
+                    - dynamodb:Query
+                    - dynamodb:Scan
+                  Resource: !Sub
+                    - arn:aws:dynamodb:*:*:table/${DynamoDBTableName}
+                    - { DynamoDBTableName: !Ref ApiVersionsMappingDynamoDBTable }
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Sid: "AllowLambdaServiceToAssumeRole"
+              Effect: "Allow"
+              Action: 
+                - "sts:AssumeRole"
+              Principal:
+                Service: 
+                  - "lambda.amazonaws.com"
+                  - "edgelambda.amazonaws.com"
+
+  # Global Table to store API Gateway version mappings 
+  ApiVersionsMappingDynamoDBTable:
+    Type: AWS::DynamoDB::GlobalTable
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      Replicas:
+        - Region: !Ref AWS::Region
+      AttributeDefinitions: 
+        - 
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "hk"
+          KeyType: "HASH"
+
+  # Lambda function for adding API version mappings to DDB table
+  InitApiMappingsTableFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: init-db/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Timeout: 60
+      MemorySize: 128
+      Environment:
+        Variables:
+          DynamoDBTableName: !Ref ApiVersionsMappingDynamoDBTable
+          ApiHeaderV1: !Ref SampleApiVersionMappingV1
+          ApiDomainV1: !Sub "${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com"
+          ApiPathV1: /Prod/v1
+          ApiHeaderV2: !Ref SampleApiVersionMappingV2
+          ApiDomainV2: !Sub "${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com"
+          ApiPathV2: /Prod/v2
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ApiVersionsMappingDynamoDBTable                 
+
+  # Triggers Lambda function after stack creation to add API version mappings to DDB table
+  InitApiMappingsTableCustom:
+    Type: Custom::InitApiMappingsTable
+    Properties:
+      ServiceToken: !GetAtt InitApiMappingsTableFunction.Arn
+    DependsOn:
+    - HelloWorldFunctionV1
+    - HelloWorldFunctionV2
+    - ApiVersionsMappingDynamoDBTable
+  
+Outputs:
+  HelloWorldApiV1:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function version 1"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v1/hello/"
+  
+  HelloWorldApiV2:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function version 2"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v2/hello/"
+  
+  LambdaEdgeFunctionRouteApiVersion: 
+    Description: Lambda@Edge Route API Function ARN with Version
+    Value: !Ref LambdaEdgeFunctionRouteApi.Version
+
+  CFDistribution: 
+    Description: Cloudfront Distribution Domain Name
+    Value: !GetAtt CFDistribution.DomainName
+
+  DynamoDBTableName: 
+    Description: Api Versions Mapping DynamoDB Table Name
+    Value: !Ref ApiVersionsMappingDynamoDBTable
