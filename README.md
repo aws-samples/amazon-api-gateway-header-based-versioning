@@ -46,7 +46,6 @@ In addition, we take advantage of [AWS SAM CLI](https://docs.aws.amazon.com/serv
 * [Test the solution](#test-the-solution)
 * [Mitigate the latency](#mitigate-the-latency)
 * [Clean up](#clean-up)
-* [Contributing](#contributing)
 * [Security](#security)
 * [License Summary](#license-summary)
 ---------------
