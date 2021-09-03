@@ -1,14 +1,14 @@
 ## Implementing header based API Gateway versioning with Amazon CloudFront
 
-After an API becomes publicly available, it starts being used by customers. As a service evolves its contract would also evolve to reflect the new changes and capabilities. It’s safe to evolve a public API by adding new features but it's not safe to change or remove existing features. 
+After an API becomes publicly available, it starts being used by customers. As a service evolves its contract also evolves to reflect new changes and capabilities. It’s safe to evolve a public API by adding new features but it's not safe to change or remove existing features. 
 
-Any non-backward compatible contract change may impact consumer’s applications and break them at runtime. API versioning is important to avoid breaking backward compatibility and violating a contract. Therefore, it is needed to specify a clear strategy on how to version our APIs and help consumers adopt them.
+Any breaking changes may impact consumer’s applications and break them at runtime. API versioning is important to avoid breaking backward compatibility and violating a contract. Therefore, a clear strategy for API versioning is needed to help consumers adopt them.
 
-There are few ways that you can version an API. Here is the most commonly used API versioning strategies:
+There are few ways that you can version an API. Here are the most commonly used API versioning strategies:
 
 #### URI versioning
 
-This strategy is the most straight forward and the most commonly used approach. In this type of versioning, version should be explicitly defined as part of API URIs. The example URLs below show how domain name, path or query string parameters can be used to specify a version.
+This strategy is the most straight forward and the most commonly used approach. In this type of versioning, version are explicitly defined as part of API URIs. The example URLs below show how domain name, path, or query string parameters can be used to specify a version.
 
 ```
 https://api.example.com/v1/myservice
@@ -20,18 +20,18 @@ In order to deploy an API in [Amazon API Gateway](https://aws.amazon.com/api-gat
 
 #### Header based versioning
 
-This strategy is another commonly used versioning approach. It uses HTTP headers to specify the desired version. It can use `Accept` header for content negotiation or use a custom header i.e. `APIVER` to indicate a version. For example:
+This strategy is another commonly used versioning approach. It uses HTTP headers to specify the desired version. It uses `Accept` header for content negotiation or use a custom header i.e. `APIVER` to indicate a version. For example:
 
 ```
 Accept:application/vnd.example.v1+json
 APIVER:v1
 ```
 
-This approach allows you to preserve your URIs between versions. As result you have a cleaner and more understandable set of URLs. It is also easier to add versioning after design. However you may need to deal with complexity of returning different versions of your resources.
+This approach allows you to preserve your URIs between versions. As a result you have a cleaner and more understandable set of URLs. It is also easier to add versioning after design. However you may need to deal with complexity of returning different versions of your resources.
 
-In this blog post, we show you how to use [Amazon CloudFront](https://aws.amazon.com/cloudfront/) to implement a header based API versioning solution for [Amazon API Gateway](https://aws.amazon.com/api-gateway/).
+In this blog post, I show you how to use [Amazon CloudFront](https://aws.amazon.com/cloudfront/) to implement a header based API versioning solution for [Amazon API Gateway](https://aws.amazon.com/api-gateway/).
 
-In addition, we take advantage of [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to build, deploy, and test our solution on AWS. The [AWS Serverless Application Model (AWS SAM)](https://aws.amazon.com/serverless/sam/) is an open-source framework that you can use to build [serverless applications](https://aws.amazon.com/serverless/) on AWS.
+In addition, I take advantage of [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to build, deploy, and test the solution on AWS. The [AWS Serverless Application Model (AWS SAM)](https://aws.amazon.com/serverless/sam/) is an open-source framework that you can use to build [serverless applications](https://aws.amazon.com/serverless/) on AWS. The AWS SAM CLI provides an execution environment that lets you locally build, test, and debug your applications defined by SAM templates. You can also use the SAM CLI to deploy your applications to AWS, or create secure continuous integration and deployment (CI/CD) pipelines.
 
 ---------------
 ### Index
@@ -52,7 +52,7 @@ In addition, we take advantage of [AWS SAM CLI](https://docs.aws.amazon.com/serv
 ### Architecture
 ---------------
 
-Our target architecture for our solution uses [Lambda@Edge](https://aws.amazon.com/lambda/edge/) to dynamically route a request to the relevant API version based on the provided header as shown in the following diagram. 
+The target architecture for the solution uses [Lambda@Edge](https://aws.amazon.com/lambda/edge/) to dynamically route a request to the relevant API version based on the provided header as shown in the following diagram. 
 
 Lambda@Edge is a feature of [Amazon CloudFront](https://aws.amazon.com/cloudfront/) that lets you run code closer to users of your application, which improves performance and reduces latency.
 
@@ -67,13 +67,13 @@ In this architecture:
 3.  The *Lambda@Edge* function uses provided header value and fetches data from an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table. This table contains mappings for API versions. The function then modifies the *Origin* and the *Host* header of the request and returns it back to Amazon CloudFront
 4.  Amazon CloudFront sends the request to the relevant Amazon API Gateway URL.
 
-In the next sections, we walk you through setting up the development environment and deploying and testing this solution.
+In the next sections, I walk you through setting up the development environment and deploying and testing this solution.
 
 ---------------
 ### Setup the development environment
 ---------------
 
-To deploy this solution on AWS, we use the AWS [Cloud9 development environment](https://aws.amazon.com/cloud9/).
+To deploy this solution on AWS, you use the AWS [Cloud9 development environment](https://aws.amazon.com/cloud9/).
 
 1.  Go to the [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1)
 2.  At the top right corner of the console, make sure you’re using *N. Virginia (us-east-1)* region **
@@ -105,7 +105,7 @@ When the environment is ready, customize the layout as below
 ### Deploy the solution
 ---------------
 
-Now that the development environment is ready, we can proceed with the solution deployment. In this section, we download, build, and deploy a sample serverless application for our solution using AWS SAM.
+Now that the development environment is ready, you can proceed with the solution deployment. In this section, you download, build, and deploy a sample serverless application for the solution using AWS SAM.
 
 #### Download the sample serverless application
 
@@ -125,9 +125,7 @@ This sample includes:
 
 #### Build your application
 
-The `sam build` command builds your AWS SAM application and prepares it for subsequent steps in the workflow. This command processes your AWS SAM template file, application code, and any applicable language-specific files and dependencies.
-
-Run following commands in order to first, change into the project directory, where the `template.yaml` file for the sample application is located then build your application:
+Run the following commands in order to first, change into the project directory, where the `template.yaml` file for the sample application is located then build your application:
 
 ```bash
 cd ~/environment/api-gateway-header-based-versioning/
@@ -141,7 +139,7 @@ Output:
 
 #### Deploy your application
 
-The `sam deploy` command deploys your AWS SAM application to the AWS Cloud using AWS CloudFormation. Run following commands in order to deploy your application in guided mode for the first time:
+The `sam deploy` command deploys your AWS SAM application to the AWS Cloud using AWS CloudFormation. Run the following commands in order to deploy your application in guided mode for the first time:
 
 ```bash
 sam deploy --guided
@@ -173,9 +171,9 @@ In the output of the `sam deploy` command, you can see the changes being made to
 ### Test the solution
 ---------------
 
-This application implements all required components for our solution. it consists of two basic Amazon API Gateway endpoints backed by AWS Lambda functions. The deployment process also initializes the API Version Mapping DynamoDB table with the values provided earlier in the deployment process. 
+This application implements all required components for the solution. it consists of two basic Amazon API Gateway endpoints backed by AWS Lambda functions. The deployment process also initializes the API Version Mapping DynamoDB table with the values provided earlier in the deployment process. 
 
-Run following commands to see the created mappings:
+Run the following commands to see the created mappings:
 
 ```bash
 STACK_NAME=$(grep stack_name ~/environment/api-gateway-header-based-versioning/samconfig.toml | awk -F\= '{gsub(/"/, "", $2); gsub(/ /, "", $2); print $2}')
@@ -190,7 +188,7 @@ Output:
 
 In this sample application when user sends a GET request to the Amazon CloudFront it routes the request to the relevant API Gateway endpoint version according to the provided header value. Then the Lambda function behind that API Gateway endpoint is invoked and returns a hello word message. 
 
-In order to send a request to the Amazon CloudFront distribution which is created as part of the deployment process, we should first run following commands to get it’s domain name from the deployed [AWS CloudFormation stack](https://console.aws.amazon.com/cloudformation/home?region=us-east-1).
+In order to send a request to the Amazon CloudFront distribution which is created as part of the deployment process, you should first run the following commands to get it’s domain name from the deployed [AWS CloudFormation stack](https://console.aws.amazon.com/cloudformation/home?region=us-east-1).
 
 ```bash
 CF_DISTRIBIUTION=$(aws cloudformation describe-stacks --region us-east-1 --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`CFDistribution`].OutputValue' --output text) && echo $CF_DISTRIBIUTION
@@ -201,9 +199,9 @@ Output:
   <img src="docs/cloudfront_domain_name_output.png" alt="Amazon CloudFront Distribution Domain Name Output" />
 </p>
 
-We can now send a GET request along with the relevant header we specified during the deployment process to the Amazon CloudFront to test our application.
+You can now send a GET request along with the relevant header you specified during the deployment process to the Amazon CloudFront to test the application.
 
-Run following commands to test our application for API version 1. Please note that if you entered a different value other than the the default value provided during the deployment process you should change the --header parameter to match your inputs.
+Run the following command to test the application for API version one. Please note that if you entered a different value other than the the default value provided during the deployment process you should change the --header parameter to match your inputs.
 
 ```bash
 curl -i -o - --silent -X GET "https://${CF_DISTRIBIUTION}/hello" --header "Accept:application/vnd.example.v1+json" && echo
@@ -214,9 +212,9 @@ Output:
   <img src="docs/api_test_output_v1.png" alt="Amazon API Gateway Endpoint v1 Test Output" />
 </p>
 
-Response shows that CloudFront successfully routed the request to the API Gateway v1 endpoint as defined in our mapping Amazon DynamoDB table. API Gateway v1 endpoint received the request. So as result the Lambda function behind the API Gateway v1 was invoked and returned a hello world message.
+The response shows that CloudFront successfully routed the request to the API Gateway v1 endpoint as defined in the mapping Amazon DynamoDB table. API Gateway v1 endpoint received the request. The Lambda function behind the API Gateway v1 was invoked and returned a “hello world” message.
 
-Now we can change the header value to v2 and run the commands again this time to test our API version 2:
+Now you can change the header value to v2 and run the command again this time to test the API version two:
 
 ```bash
 curl -i -o - --silent -X GET "https://${CF_DISTRIBIUTION}/hello" --header "Accept:application/vnd.example.v2+json" && echo
@@ -227,11 +225,11 @@ Output:
   <img src="docs/api_test_output_v2.png" alt="Amazon API Gateway Endpoint v2 Test Output" />
 </p>
 
-Response shows that CloudFront this time routed the request to the API Gateway v2 endpoint as defined in our mapping Amazon DynamoDB table. API Gateway v2 endpoint received the request. So as result the Lambda function behind the API Gateway v2 was invoked and returned a hello world message.
+The response shows that CloudFront routed the request to the API Gateway v2 endpoint as defined in the mapping Amazon DynamoDB table. API Gateway v2 endpoint received the request. The Lambda function behind the API Gateway v2 was invoked and returned a “hello world” message.
 
-This solution requires valid header value on each individual request, so the application checks and raises an error if the header is missing or the header value is not valid. 
+This solution requires valid header value on each individual request, so the application checks and raises an error if the header is missing or the header value is not valid.
 
-We can remove the header parameter and run the commands to test this scenario:
+You can remove the header parameter and run the commands to test this scenario:
 
 ```bash
 curl -i -o - --silent -X GET "https://${CF_DISTRIBIUTION}/hello" && echo
@@ -242,15 +240,15 @@ Output:
   <img src="docs/api_test_output_error.png" alt="Amazon API Gateway Endpoint No Header Test Output" />
 </p>
 
-Response shows that Lambda@Edge validated the request and raised an error to inform us that our request did not have a valid header.
+The response shows that Lambda@Edge validated the request and raised an error to inform us that the request did not have a valid header.
 
 ---------------
 ### Mitigate the latency
 ---------------
 
-In this solution Lambda@Edge requires to read API version mappings data from the DynamoDB table. Accessing external data at the edge can cause additional latency to the request. In order to mitigate the latency, solution uses following methods:
+In this solution, Lambda@Edge reads the API version mappings data from the DynamoDB table. Accessing external data at the edge can cause additional latency to the request. In order to mitigate the latency, solution uses following methods:
 
-1.  Cache data in Lambda@Edge Memory: As our data is very unlikely to change across many Lambda@Edge invocations, Lambda@Edge caches API versions mapping data in the memory for a certain period of time. It reduces latency by avoiding an external network call for each individual request.
+1.  Cache data in Lambda@Edge Memory: As data is very unlikely to change across many Lambda@Edge invocations, Lambda@Edge caches API versions mapping data in the memory for a certain period of time. It reduces latency by avoiding an external network call for each individual request.
 2.  Use [Amazon DynamoDB global table](https://aws.amazon.com/dynamodb/global-tables/): It brings data closer to the Amazon CloudFront distribution and Lambda@Edge and reduces external network call latency.
 
 ---------------
@@ -268,7 +266,7 @@ To cleanup the resources provisioned as part of the solution, you will need to c
 ### Conclusion
 ---------------
 
-Header based API versioning is one of the commonly used versioning strategy. This post showed how to use Amazon CloudFront to implement a header based API versioning solution for Amazon API Gateway. We also used AWS SAM CLI to build and deploy a sample serverless application to test our solution on AWS.
+Header based API versioning is one of the commonly used versioning strategy. This post showed how to use Amazon CloudFront to implement a header based API versioning solution for Amazon API Gateway. You also used AWS SAM CLI to build and deploy a sample serverless application to test the solution on AWS.
 
 To learn more about Amazon API Gateway, visit the [API Gateway developer guide documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide), and for Amazon CloudFront refer to [Amazon CloudFront developer guide documentation](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide).
 
