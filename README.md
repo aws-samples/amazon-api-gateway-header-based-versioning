@@ -62,9 +62,9 @@ Lambda@Edge is a feature of [Amazon CloudFront](https://aws.amazon.com/cloudfron
 
 In this architecture:
 
-1.	User sends a request with relevant header which can be either *“Accept”* or another custom header
-2.  This request gets to the Amazon CloudFront distribution and triggers the *Lambda@Edge Origin Request*
-3.  The *Lambda@Edge* function uses provided header value and fetches data from an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table. This table contains mappings for API versions. The function then modifies the *Origin* and the *Host* header of the request and returns it back to Amazon CloudFront
+1.	User sends a request with relevant header which can be either *“Accept”* or another custom header.
+2.  This request gets to the Amazon CloudFront distribution and triggers the *Lambda@Edge Origin Request*.
+3.  The *Lambda@Edge* function uses provided header value and fetches data from an [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) table. This table contains mappings for API versions. The function then modifies the *Origin* and the *Host* header of the request and returns it back to Amazon CloudFront.
 4.  Amazon CloudFront sends the request to the relevant Amazon API Gateway URL.
 
 In the next sections, I walk you through setting up the development environment and deploying and testing this solution.
@@ -75,10 +75,10 @@ In the next sections, I walk you through setting up the development environment 
 
 To deploy this solution on AWS, you use the AWS [Cloud9 development environment](https://aws.amazon.com/cloud9/).
 
-1.  Go to the [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1)
-2.  At the top right corner of the console, make sure you’re using *N. Virginia (us-east-1)* region **
-3.  Select *Create environment*
-4.  On Step 1 - *Name environment*, enter a name for the environment, and go to the *Next step*
+1.  Go to the [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1).
+2.  At the top right corner of the console, make sure you’re using *N. Virginia (us-east-1)* region **.
+3.  Select *Create environment*.
+4.  On Step 1 - *Name environment*, enter a name for the environment, and go to the *Next step*.
 5.  On Step 2 - *Configure settings*, Leave all of the environment settings as they are:
     * *Environment type:* Create a new EC2 instance for the environment (direct access)
     * *Instance type:* t2.micro (1 Gib RAM + 1 vCPU)
@@ -88,14 +88,14 @@ To deploy this solution on AWS, you use the AWS [Cloud9 development environment]
   <img src="docs/cloud9_setup.png" alt="AWS Cloud9 Environment Setup" />
 </p>
 
-6.  Go to the *Next step*
-7.  Click *Create environment*
+6.  Go to the *Next step*.
+7.  Click *Create environment*.
 
 When the environment is ready, customize the layout as below
 
-1.  Close the all *tabs* 
-2.  Close the *lower work area*
-3.  Open a *New Terminal* tab in the main work area
+1.  Close the all *tabs*.
+2.  Close the *lower work area*.
+3.  Open a *New Terminal* tab in the main work area.
 
 <p align="center">
   <img src="docs/cloud9_customize.png" alt="AWS Cloud9 Customize Layout" />
@@ -117,10 +117,10 @@ git clone https://github.com/aws-samples/amazon-api-gateway-header-based-version
 
 This sample includes:
 
-* `template.yaml`: Contains the AWS SAM template that defines your application's AWS resources
-* `hello-world/`: Contains the Lambda handler logic behind the API Gateway endpoints to return hello world message
+* `template.yaml`: Contains the AWS SAM template that defines your application's AWS resources.
+* `hello-world/`: Contains the Lambda handler logic behind the API Gateway endpoints to return hello world message.
 * `edge-origin-request/`: Contains the Lambda@Edge handler logic to query the API version mapping and modify the *Origin* and the *Host* header of the request.
-* `init-db/`: Contains the Lambda handler logic for a [custom resource](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html) to populate sample Amazon DynamoDB table 
+* `init-db/`: Contains the Lambda handler logic for a [custom resource](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html) to populate sample Amazon DynamoDB table.
 
 
 #### Build your application
