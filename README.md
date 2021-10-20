@@ -173,7 +173,7 @@ When a user sends a GET request to CloudFront, it routes the request to the rele
 To send a request to the CloudFront distribution, which is created as part of the deployment process, first get its domain name from the deployed [AWS CloudFormation stack](https://console.aws.amazon.com/cloudformation/home?region=us-east-1):
 
 ```bash
-CF_DISTRIBIUTION=$(aws cloudformation describe-stacks --region us-east-1 --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`CFDistribution`].OutputValue' --output text) && echo $CF_DISTRIBIUTION
+CF_DISTRIBUTION=$(aws cloudformation describe-stacks --region us-east-1 --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`CFDistribution`].OutputValue' --output text) && echo $CF_DISTRIBUTION
 ```
 
 Output:
@@ -186,7 +186,7 @@ You can now send a GET request along with the relevant header you specified duri
 Run the following command to test the application for API version one. Note that if you entered a different value other than the default value provided during the deployment process, change the --header parameter to match your inputs:
 
 ```bash
-curl -i -o - --silent -X GET "https://${CF_DISTRIBIUTION}/hello" --header "Accept:application/vnd.example.v1+json" && echo
+curl -i -o - --silent -X GET "https://${CF_DISTRIBUTION}/hello" --header "Accept:application/vnd.example.v1+json" && echo
 ```
 
 Output:
@@ -199,7 +199,7 @@ The response shows that CloudFront successfully routed the request to the API Ga
 Now you can change the header value to v2 and run the command again this time to test the API version two:
 
 ```bash
-curl -i -o - --silent -X GET "https://${CF_DISTRIBIUTION}/hello" --header "Accept:application/vnd.example.v2+json" && echo
+curl -i -o - --silent -X GET "https://${CF_DISTRIBUTION}/hello" --header "Accept:application/vnd.example.v2+json" && echo
 ```
 
 Output:
@@ -214,7 +214,7 @@ This solution requires valid header value on each individual request, so the app
 You can remove the header parameter and run the command to test this scenario:
 
 ```bash
-curl -i -o - --silent -X GET "https://${CF_DISTRIBIUTION}/hello" && echo
+curl -i -o - --silent -X GET "https://${CF_DISTRIBUTION}/hello" && echo
 ```
 
 Output:
