@@ -154,7 +154,7 @@ In the output of the `sam deploy` command, you can see the changes being made to
 ### Testing the solution
 ---------------
 
-This application implements all required components for the solution. It consists of two Amazon API Gateway endpoints backed by AWS Lambda functions. The deployment process also initializes the API Version Mapping DynamoDB table with the values provided earlier in the deployment process.
+This application implements all required components for the solution. It consists of two Amazon API Gateway endpoints backed by [AWS Lambda](https://aws.amazon.com/lambda/) functions. The deployment process also initializes the API Version Mapping DynamoDB table with the values provided earlier in the deployment process.
 
 Run the following commands to see the created mappings:
 
