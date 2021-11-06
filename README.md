@@ -122,7 +122,7 @@ Output:
 
 #### Deploy your application
 
-Run the following command in order to deploy your application in guided mode for the first time:
+Run the following command to deploy your application in guided mode for the first time:
 
 ```bash
 sam deploy --guided
@@ -237,10 +237,13 @@ In this solution, Lambda@Edge reads the API version mappings data from the Dynam
 ### Cleaning up
 ---------------
 
-To clean up the resources provisioned as part of the solution:
+Run the following command to clean up the resources provisioned as part of the solution:
 
-1.	Go to the [AWS CloudFormation console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1). Choose the “api-gateway-header-based-versioning” stack then choose Delete. 
-2.	Go to the [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1). Select the environment you created then select "Delete" button.
+```bash
+sam delete
+```
+
+Then go to the [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1). Select the environment you created and select "Delete" button.
 
 ---------------
 ### Conclusion
