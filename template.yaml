@@ -120,6 +120,7 @@ Resources:
 
   LambdaEdgeFunctionRouteApi:
     Type: AWS::Serverless::Function
+    DeletionPolicy: Retain
     Properties:
       CodeUri: edge-origin-request/
       Handler: app.lambdaHandler
