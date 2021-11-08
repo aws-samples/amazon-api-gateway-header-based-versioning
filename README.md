@@ -237,13 +237,15 @@ In this solution, Lambda@Edge reads the API version mappings data from the Dynam
 ### Cleaning up
 ---------------
 
-Run the following command to clean up the resources provisioned as part of the solution:
+To clean up the resources provisioned as part of the solution:
+
+1. Run following command to delete the deployed application:
 
 ```bash
 sam delete
 ```
 
-Then go to the [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1). Select the environment you created and select "Delete" button.
+2. Go to the AWS [Cloud9 web console](https://console.aws.amazon.com/cloud9/home?region=us-east-1). Select the environment you created then choose Delete.
 
 ---------------
 ### Conclusion
